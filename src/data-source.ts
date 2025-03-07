@@ -10,11 +10,16 @@ import { Item } from "./entity/Item"
 import { ItemMappingSupplier } from "./entity/ItemMappingSupplier"
 import { PO_Request } from "./entity/PO_Request"
 import { PO_Item } from "./entity/PO_Item"
+import * as dotenv from "dotenv"
+
+dotenv.config();
+
+const { PG_HOST, PG_PORT, PG_USERNAME, PG_PASSWORD, PG_DATABASE, PG_URL } = process.env
 
 export const AppDataSource = new DataSource({
     // url: "postgresql://test_gxe8_user:AB8FZ6QhrtilWfPHyIvkHqfVjeCupqbA@dpg-cv29oejtq21c73deprr0-a.singapore-postgres.render.com/test_gxe8",
     type: "postgres",
-    url: process.env.PG_URL || "postgresql://test_gxe8_user:AB8FZ6QhrtilWfPHyIvkHqfVjeCupqbA@dpg-cv29oejtq21c73deprr0-a.singapore-postgres.render.com/test_gxe8",
+    url: PG_URL,//process.env.PG_URL|| "postgresql://test_gxe8_user:AB8FZ6QhrtilWfPHyIvkHqfVjeCupqbA@dpg-cv29oejtq21c73deprr0-a.singapore-postgres.render.com/test_gxe8",
     // host: process.env.PG_HOST || "cv29oejtq21c73deprr0-a.singapore-postgres.render.com",
     // port: Number(process.env.PG_PORT) || 5432,
     // username: process.env.PG_USERNAME || "test_gxe8_user",

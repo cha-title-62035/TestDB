@@ -10,7 +10,7 @@ export class UserController {
         return this.userRepository.find()
     }
 
-    async one(request: Request, response: Response, next: NextFunction) {
+    async one(authentification, request: Request, response: Response, next: NextFunction) {
         const Rawurl = request.url;
         const url = Rawurl.replace("/users", "");
 
@@ -21,7 +21,7 @@ export class UserController {
         const urlParams = new URLSearchParams(url);
         
         if (urlParams.getAll.length == 0){
-            return "Invalid URL"
+            return response.status(400).json({ message: "Invalid URL" });
         }
         // console.log(urlParams);
         const id = parseInt(urlParams.get("id"));
@@ -41,11 +41,11 @@ export class UserController {
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { firstName, lastName, age } = request.body;
+        const { email, password, age } = request.body;
 
         const user = Object.assign(new User(), {
-            firstName,
-            lastName,
+            email,
+            password,
             age
         })
 

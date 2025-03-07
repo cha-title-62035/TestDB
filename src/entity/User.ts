@@ -7,10 +7,10 @@ export class User {
     id: number
 
     @Column()
-    firstName: string
+    email: string
 
-    @Column()
-    lastName: string
+    @Column({nullable:false,default:'admin'})
+    password: string
 
     @Column()
     age: number

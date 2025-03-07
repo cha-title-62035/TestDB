@@ -1,3 +1,4 @@
+import { AuthController } from "./controller/AuthController"
 import { CategoryController } from "./controller/CategoryController"
 import { EmployeeController } from "./controller/EmployeeController"
 import { ItemController } from "./controller/ItemController"
@@ -8,6 +9,7 @@ import { PositionController } from "./controller/PositionController"
 import { StatusController } from "./controller/StatusController"
 import { SupplierController } from "./controller/SupplierController"
 import { UserController } from "./controller/UserController"
+import { authentification } from "./middleware/authentification"
 
 export const Routes = [/*{
     method: "get",
@@ -20,6 +22,7 @@ export const Routes = [/*{
 {
     method: "get",
     route: "/users",
+    //authentification: authentification,
     controller: UserController,
     action: "one"
 }, {
@@ -33,6 +36,20 @@ export const Routes = [/*{
     controller: UserController,
     action: "remove"
 }, 
+
+    // Auth
+{
+    method: "post",
+    route: "/login",
+    controller: AuthController,
+    action: "login"
+},
+{
+    method: "post",
+    route: "/signup",
+    controller: AuthController,
+    action: "signup"
+},
 
     // Status
 /*{
