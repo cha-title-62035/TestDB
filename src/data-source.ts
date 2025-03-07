@@ -12,12 +12,13 @@ import { PO_Request } from "./entity/PO_Request"
 import { PO_Item } from "./entity/PO_Item"
 
 export const AppDataSource = new DataSource({
+    // url: "postgresql://test_gxe8_user:AB8FZ6QhrtilWfPHyIvkHqfVjeCupqbA@dpg-cv29oejtq21c73deprr0-a.singapore-postgres.render.com/test_gxe8",
     type: "postgres",
-    host: "localhost",
-    port: 5432,
-    username: "postgres",
-    password: "titles1997",
-    database: "postgres",
+    host: process.env.PG_HOST,
+    port: Number(process.env.PG_PORT),
+    username: process.env.PG_USERNAME,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DATABASE,
     synchronize: true,
     logging: false,
     entities: [User, Employee, Position, Supplier, Category, Item, ItemMappingSupplier, PO_Request, PO_Item, Status],
