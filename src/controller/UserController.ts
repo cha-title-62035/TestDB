@@ -10,8 +10,9 @@ export class UserController {
         return this.userRepository.find()
     }
 
-    async one(authentification, request: Request, response: Response, next: NextFunction) {
+    async one(request: Request, response: Response, next: NextFunction) {
         const Rawurl = request.url;
+        console.log(Rawurl);
         const url = Rawurl.replace("/users", "");
 
         if(url == ""){

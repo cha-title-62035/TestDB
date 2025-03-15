@@ -37,16 +37,16 @@ export class SupplierController {
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { Code, Name, IsActive, CreateOn, CreateBy, UpdateBy, UpdateOn } = request.body;
+        const { Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
 
         const supplier = Object.assign(new Supplier(), {
             Code,
             Name,
             IsActive,
-            CreateOn,
-            CreateBy,
-            UpdateBy,
-            UpdateOn
+            S_CreateOn,
+            S_CreateBy,
+            S_UpdateBy,
+            S_UpdateOn
         })
 
         return this.SupplierRepository.save(supplier)
@@ -67,34 +67,34 @@ export class SupplierController {
     }
 
     async update(request: Request, response: Response, next: NextFunction) {
-        const { S_Id, Code, Name, IsActive, CreateOn, CreateBy, UpdateBy, UpdateOn } = request.body;
+        const { S_Id, Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
 
         const supplier = Object.assign(new Supplier(), {
             S_Id,
             Code,
             Name,
             IsActive,
-            CreateOn,
-            CreateBy,
-            UpdateBy,
-            UpdateOn
+            S_CreateOn,
+            S_CreateBy,
+            S_UpdateBy,
+            S_UpdateOn
         })
 
         return await this.SupplierRepository.update(parseInt(supplier.S_Id), supplier)
     }
 
     async create_update(request: Request, response: Response, next: NextFunction) {
-        const { S_Id, Code, Name, IsActive, CreateOn, CreateBy, UpdateBy, UpdateOn } = request.body;
+        const { S_Id, Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
         const SupplierToUpdate = await this.SupplierRepository.findOneBy({ S_Id })
         const supplier = Object.assign(new Supplier(), {
             S_Id,
             Code,
             Name,
             IsActive,
-            CreateOn,
-            CreateBy,
-            UpdateBy,
-            UpdateOn
+            S_CreateOn,
+            S_CreateBy,
+            S_UpdateBy,
+            S_UpdateOn
         })
 
         if (!SupplierToUpdate) {

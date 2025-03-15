@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany, JoinTable } from "typeorm"
 import { Employee } from "./Employee"
+import { ItemMappingSupplier } from "./ItemMappingSupplier"
 
 @Entity()
 export class Item {
@@ -44,5 +45,9 @@ export class Item {
 
     @Column({ type: "timestamptz" })
     I_UpdateOn: Date
+
+    @OneToMany(type => ItemMappingSupplier, ItemMappingSupplier => ItemMappingSupplier.Item)
+    @JoinTable()
+    ItemMappingSupplier: ItemMappingSupplier
 
 }

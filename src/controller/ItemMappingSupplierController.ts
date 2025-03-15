@@ -1,10 +1,13 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
 import { ItemMappingSupplier } from "../entity/ItemMappingSupplier"
+import { Item } from "../entity/Item"
+import { Supplier } from "../entity/Supplier"
 
 export class ItemMappingSupplierController {
 
     private ItemMappingSupplierRepository = AppDataSource.getRepository(ItemMappingSupplier)
+    private ItemRepository = AppDataSource.getRepository(Item)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.ItemMappingSupplierRepository.find()
@@ -15,7 +18,57 @@ export class ItemMappingSupplierController {
         const url = Rawurl.replace("/item_mapping_supplier", "");
 
         if(url == ""){
-            return this.ItemMappingSupplierRepository.find()
+            // return /*const db =*/ await this.ItemRepository.createQueryBuilder("Item")
+            // // // .innerJoin("Item_Mapping_Supplier.Item", "IMS")
+            // // // .leftJoinAndSelect("Item_Mapping_Supplier.Supplier", "Supplier")
+            // // .select("Supplier.Code")
+            // .leftJoinAndSelect("Item.ItemMappingSupplier", "Item_Mapping_Supplier") //, "Item_Mapping_Supplier.IMS_ItemId = Item.I_Id")
+            // .leftJoinAndSelect("Item_Mapping_Supplier.Supplier", "Supplier") //, '"Item_Mapping_Supplier"."IMS_SupplierId" = "Supplier"."S_Id"')
+            // .getMany()
+            // .getMany()
+            // return await AppDataSource.createQueryBuilder()
+            // .select("Item.*, Supplier.*")
+            // .from(ItemMappingSupplier, "Item_Mapping_Supplier")
+            // .leftJoin("Item_Mapping_Supplier.Item", "Item")
+            // .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
+            // .getMany()
+            // const join = await AppDataSource.createQueryBuilder()
+            // .select(["item.*", "supplier.*"])
+            // .from("(" + db.getQuery() + ")", "Item_Mapping_Supplier")
+            // .setParameters(db.getParameters())
+            // .getMany()
+
+            const db = await this.ItemMappingSupplierRepository.find({
+                // select: {
+                //     /*IMS_Id: true,
+                //     IMS_ItemId: false,
+                //     IMS_SupplierId: false,*/
+                //     Item: {
+                //         I_Id: true
+                //     },
+                //     Supplier: {
+                //         S_Id: true
+                //     }
+                // },
+                relations: {
+                    Item: true,
+                    Supplier: true
+                }
+            })
+            db.forEach(Db => {
+                delete Db.IMS_Id
+                delete Db.IMS_ItemId
+                delete Db.IMS_SupplierId
+            })
+            
+            return db
+
+            // return join
+            // return await this.ItemMappingSupplierRepository.find()/*query(
+            //     'SELECT "Item"."*", "Supplier"."*", "IMS"."*" ' + 
+            //     'FROM "item_mapping_supplier" "IMS"' + 
+            //     'LEFT JOIN "item" "Item" ON "IMS"."IMS_ItemId" = "Item"."I_Id" ' + 
+            //     'LEFT JOIN "supplier" "Supplier" ON "IMS"."IMS_SupplierId" = "Supplier"."S_Id"')*/
         }
 
         const urlParams = new URLSearchParams(url);
@@ -26,18 +79,23 @@ export class ItemMappingSupplierController {
         const IMS_Id = parseInt(urlParams.get("id"));
 
 
-        const ItemMappingSupplier = await this.ItemMappingSupplierRepository.findOne({
+        const ItemMappingSuppliers = await this.ItemMappingSupplierRepository.findOne({
             where: { IMS_Id }
         })
 
-        if (!ItemMappingSupplier) {
+        if (!ItemMappingSuppliers) {
             return "unregistered Item Mapping Supplier"
         }
-        return ItemMappingSupplier
+        return ItemMappingSuppliers
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        const { IMS_ItemId, IMS_SupplierId } = request.body;
+        // console.log(request.body);
+        const { Item : { I_Id }, Supplier : { S_Id } } = request.body;
+        // console.log(I_Id + " " + S_Id);
+
+        const IMS_ItemId = I_Id
+        const IMS_SupplierId = S_Id
 
         const item_mapping_supplier = Object.assign(new ItemMappingSupplier(), {
             IMS_ItemId,

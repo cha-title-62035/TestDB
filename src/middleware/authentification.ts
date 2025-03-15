@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
+import { AppDataSource } from "../data-source";
+import { User } from "../entity/User";
 dotenv.config();
 
 export const authentification = (
@@ -21,7 +23,16 @@ export const authentification = (
   if (!decode) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-  console.log(decode);
+  // const { id, email, password, age } = JSON.parse(decode)
+  // const user = Object.assign(new User(), {
+  //             decode
+  //         })
+  // AppDataSource.manager.findOne({
+  //   where: { user.id }
+  // })
+  // console.log(decode);
+  // console.log(req[" currentUser"]);
   req[" currentUser"] = decode;
+  // console.log(req[" currentUser"]);
   next();
 };

@@ -7,7 +7,9 @@ export class PO_RequestController {
     private PO_RequestRepository = AppDataSource.getRepository(PO_Request)
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.PO_RequestRepository.find()
+        return await this.PO_RequestRepository.createQueryBuilder("PO_Request")
+        .leftJoinAndSelect("PO_Request.Supplier", "Supplier.Code, Supplier.Name")
+        .getRawMany();
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
@@ -15,7 +17,10 @@ export class PO_RequestController {
         const url = Rawurl.replace("/po_request", "");
 
         if(url == ""){
-            return this.PO_RequestRepository.find()
+            return await this.PO_RequestRepository.createQueryBuilder("PO_Request")
+            .select("Supplier")
+            .leftJoin("PO_Request.Supplier", "Supplier")
+            .getMany();
         }
 
         const urlParams = new URLSearchParams(url);
