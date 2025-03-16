@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, JoinTable } from "typeorm"
 import { Supplier } from "./Supplier"
 import { Employee } from "./Employee"
 import { Status } from "./Status"
+import { PO_Item } from "./PO_Item"
 
 @Entity()
 export class PO_Request {
@@ -51,5 +52,9 @@ export class PO_Request {
 
     @Column()
     RejectComment: string
+
+    @OneToMany(type => PO_Item, PO_Item => PO_Item.PO_Request)
+    @JoinTable()
+    PO_Item: PO_Item
 
 }

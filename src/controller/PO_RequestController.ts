@@ -18,9 +18,29 @@ export class PO_RequestController {
 
         if(url == ""){
             return await this.PO_RequestRepository.createQueryBuilder("PO_Request")
-            .select("Supplier")
+            .select("PO_Request.PR_Id")
+            .addSelect("PO_Request.PONumber")
+            .addSelect("Supplier.Code")
+            .addSelect("PO_Request.DueDate")
+            .addSelect("CreateBy.EmployeeCode")
+            .addSelect("Status.Label")
+            .addSelect("Approver.EmployeeCode")
+            .addSelect("PO_Request.RejectComment")
+            .addSelect("SUM(PO_Item.Amount)", "sumAmount")
+            .groupBy("PO_Request.PR_Id")
+            .addGroupBy("PO_Request.PONumber")
+            .addGroupBy("Supplier.Code")
+            .addGroupBy("PO_Request.DueDate")
+            .addGroupBy("CreateBy.EmployeeCode")
+            .addGroupBy("Status.Label")
+            .addGroupBy("Approver.EmployeeCode")
+            .addGroupBy("PO_Request.RejectComment")
             .leftJoin("PO_Request.Supplier", "Supplier")
-            .getMany();
+            .leftJoin("PO_Request.Employee_CreateBy", "CreateBy")
+            .leftJoin("PO_Request.Status", "Status")
+            .leftJoin("PO_Request.Employee_ApproverId", "Approver")
+            .leftJoin("PO_Request.PO_Item", "PO_Item")
+            .getRawMany();
         }
 
         const urlParams = new URLSearchParams(url);

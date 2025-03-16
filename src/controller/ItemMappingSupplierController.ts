@@ -18,50 +18,53 @@ export class ItemMappingSupplierController {
         const url = Rawurl.replace("/item_mapping_supplier", "");
 
         if(url == ""){
-            // return /*const db =*/ await this.ItemRepository.createQueryBuilder("Item")
-            // // // .innerJoin("Item_Mapping_Supplier.Item", "IMS")
-            // // // .leftJoinAndSelect("Item_Mapping_Supplier.Supplier", "Supplier")
-            // // .select("Supplier.Code")
-            // .leftJoinAndSelect("Item.ItemMappingSupplier", "Item_Mapping_Supplier") //, "Item_Mapping_Supplier.IMS_ItemId = Item.I_Id")
-            // .leftJoinAndSelect("Item_Mapping_Supplier.Supplier", "Supplier") //, '"Item_Mapping_Supplier"."IMS_SupplierId" = "Supplier"."S_Id"')
+            // return /*const db =*/ await AppDataSource.manager.query("SELECT IMS.IMS_ItemId FROM item_mapping_supplier IMS LEFT JOIN item ON IMS.Item = item.I_Id")
+            // // .innerJoin("Item_Mapping_Supplier.Item", "IMS")
+            // // .leftJoinAndSelect("Item_Mapping_Supplier.Supplier", "Supplier")
+            // .select("Item")
+            // // .addSelect("Supplier")
+            // .from(Item, "Item")
+            // .leftJoin(ItemMappingSupplier, "IMS", "Item.I_Id = IMS.IMS_ItemId") //, "Item_Mapping_Supplier.IMS_ItemId = Item.I_Id")
+            // .leftJoinAndSelect("IMS.Supplier", "Supplier"/*, "Supplier.S_Id = IMS.IMS_SupplierId"*/) //, '"Item_Mapping_Supplier"."IMS_SupplierId" = "Supplier"."S_Id"')
             // .getMany()
             // .getMany()
-            // return await AppDataSource.createQueryBuilder()
-            // .select("Item.*, Supplier.*")
-            // .from(ItemMappingSupplier, "Item_Mapping_Supplier")
-            // .leftJoin("Item_Mapping_Supplier.Item", "Item")
-            // .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
-            // .getMany()
+            return console.log(await AppDataSource.createQueryBuilder()
+            .select("Item")
+            .addSelect("Supplier")
+            .from(ItemMappingSupplier, "Item_Mapping_Supplier")
+            .leftJoin("Item_Mapping_Supplier.Item", "Item")
+            .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
+            .getMany())
             // const join = await AppDataSource.createQueryBuilder()
             // .select(["item.*", "supplier.*"])
             // .from("(" + db.getQuery() + ")", "Item_Mapping_Supplier")
             // .setParameters(db.getParameters())
             // .getMany()
 
-            const db = await this.ItemMappingSupplierRepository.find({
-                // select: {
-                //     /*IMS_Id: true,
-                //     IMS_ItemId: false,
-                //     IMS_SupplierId: false,*/
-                //     Item: {
-                //         I_Id: true
-                //     },
-                //     Supplier: {
-                //         S_Id: true
-                //     }
-                // },
-                relations: {
-                    Item: true,
-                    Supplier: true
-                }
-            })
-            db.forEach(Db => {
-                delete Db.IMS_Id
-                delete Db.IMS_ItemId
-                delete Db.IMS_SupplierId
-            })
+            // const db = await AppDataSource.manager.find({
+            //     // select: {
+            //     //     /*IMS_Id: true,
+            //     //     IMS_ItemId: false,
+            //     //     IMS_SupplierId: false,*/
+            //     //     Item: {
+            //     //         I_Id: true
+            //     //     },
+            //     //     Supplier: {
+            //     //         S_Id: true
+            //     //     }
+            //     // },
+            //     relations: {
+            //         Item: true,
+            //         Supplier: true
+            //     }
+            // })
+            // db.forEach(Db => {
+            //     delete Db.IMS_Id
+            //     delete Db.IMS_ItemId
+            //     delete Db.IMS_SupplierId
+            // })
             
-            return db
+            // return db
 
             // return join
             // return await this.ItemMappingSupplierRepository.find()/*query(

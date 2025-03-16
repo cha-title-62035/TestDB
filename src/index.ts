@@ -5,6 +5,8 @@ import { AppDataSource } from "./data-source"
 import { Routes } from "./routes"
 import { User } from "./entity/User"
 import { authentification } from "./middleware/authentification"
+import * as nodemailer from "nodemailer"
+import * as dotenv from "dotenv"
 
 AppDataSource.initialize().then(async () => {
 
@@ -12,6 +14,33 @@ AppDataSource.initialize().then(async () => {
     const app = express()
     app.use(bodyParser.json())
     app.use(express.json());
+    dotenv.config()
+
+    app.post('/deliver', async (req: Request, res: Response) => {
+        let {recipient, subject, text, html, } = req.body;
+        const transporter = nodemailer.createTransport({
+            // service: "gmail",
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            },
+        });
+    
+        const info = await transporter.sendMail({
+            from: process.env.EMAIL, 
+            to: recipient,
+            subject: subject, 
+            text: text,
+            html: html
+        });
+
+        console.log("Message sent: %s", info.messageId);
+    
+        res.status(200).send("Message sent")
+    })
 
     // register express routes from defined application routes
     Routes.forEach(route => {
