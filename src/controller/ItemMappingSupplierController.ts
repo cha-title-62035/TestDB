@@ -3,6 +3,9 @@ import { NextFunction, Request, Response } from "express"
 import { ItemMappingSupplier } from "../entity/ItemMappingSupplier"
 import { Item } from "../entity/Item"
 import { Supplier } from "../entity/Supplier"
+import * as Excel from "exceljs"
+import * as path from "path"
+import { Category } from "../entity/Category"
 
 export class ItemMappingSupplierController {
 
@@ -11,6 +14,66 @@ export class ItemMappingSupplierController {
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.ItemMappingSupplierRepository.find()
+    }
+
+    async export(request: Request, response: Response, next: NextFunction) {
+        const workbook = new Excel.Workbook();
+        const worksheetSupplier = workbook.addWorksheet("Supplier");
+        const worksheetItem = workbook.addWorksheet("Item");
+        const SupplierColumns = [
+            { key: "Code", header: "Code" },
+            { key: "Name", header: "Name" },
+            { key: "IsActive", header: "Is Active" }
+        ]
+        const ItemColumns = [
+            { key: "Item_Supplier", header: "Supplier" },
+            { key: "Code", header: "Code" },
+            { key: "Name", header: "Name" },
+            { key: "Category_Label", header: "Category Name" },
+            { key: "Price", header: "Price" },
+            { key: "Unit", header: "Unit" },
+            { key: "IsActive", header: "Is Active" }
+        ]
+        worksheetSupplier.columns = SupplierColumns;
+        worksheetItem.columns = ItemColumns;
+
+        const db = await AppDataSource.createQueryBuilder()
+        .select("Item")
+        // .addSelect("Supplier.Code", "Item_Supplier")
+        .addSelect("Supplier")
+        .addSelect("Item_Mapping_Supplier.IMS_Id")
+        .addSelect("Category.Label", "Category_Label")
+        .from(ItemMappingSupplier, "Item_Mapping_Supplier")
+        .leftJoin("Item_Mapping_Supplier.Item", "Item")
+        .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
+        .leftJoin("Item.Category", "Category")
+        .getMany()
+
+        console.log(db)
+
+        db.forEach((DB) => {
+            DB.Item["Item_Supplier"] = DB.Supplier.Code
+            DB.Item["Category_Label"] = DB.Item.Category.Label
+            console.log(DB.Item)
+            console.log(DB.Supplier)
+            console.log(DB.Supplier.Code)
+            worksheetItem.addRow(DB.Item)
+            worksheetSupplier.addRow(DB.Supplier)
+        });
+
+        function addZero(i) {
+            if (i < 10) {
+              i = "0" + i;
+            }
+            return i;
+        }
+        const d = new Date();
+        const timestamptz = addZero(d.getFullYear()) + addZero(d.getMonth()) + addZero(d.getDate())
+        + "-" + addZero(d.getHours()) + addZero(d.getMinutes()) + addZero(d.getSeconds());
+
+        const exportPath = path.resolve("./src/files/", "Supplier_Item_" + timestamptz + ".xlsx")
+        await workbook.xlsx.writeFile(exportPath);
+        return "Finished"
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
@@ -28,13 +91,16 @@ export class ItemMappingSupplierController {
             // .leftJoinAndSelect("IMS.Supplier", "Supplier"/*, "Supplier.S_Id = IMS.IMS_SupplierId"*/) //, '"Item_Mapping_Supplier"."IMS_SupplierId" = "Supplier"."S_Id"')
             // .getMany()
             // .getMany()
-            return console.log(await AppDataSource.createQueryBuilder()
+            return await AppDataSource.createQueryBuilder()
             .select("Item")
             .addSelect("Supplier")
+            .addSelect("Item_Mapping_Supplier.IMS_Id")
+            .addSelect("Category.Label", "Category_Label")
             .from(ItemMappingSupplier, "Item_Mapping_Supplier")
             .leftJoin("Item_Mapping_Supplier.Item", "Item")
             .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
-            .getMany())
+            .leftJoin("Item.Category", "Category")
+            .getMany()
             // const join = await AppDataSource.createQueryBuilder()
             // .select(["item.*", "supplier.*"])
             // .from("(" + db.getQuery() + ")", "Item_Mapping_Supplier")

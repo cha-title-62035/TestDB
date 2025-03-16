@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany, JoinTable } from "typeorm"
 import { Employee } from "./Employee"
 import { ItemMappingSupplier } from "./ItemMappingSupplier"
+import { Category } from "./Category"
 
 @Entity()
 export class Item {
@@ -17,6 +18,10 @@ export class Item {
     @Column()
     I_CategoryId: number
 
+    @ManyToOne(type => Category)
+    @JoinColumn({ name: "I_CategoryId" })
+    Category: Category
+
     @Column({ type: "decimal" })
     Price: number
 
@@ -30,7 +35,7 @@ export class Item {
     I_CreateBy: number
 
     @ManyToOne(type => Employee)
-    @JoinColumn({ name: "I_CreateBy"})
+    @JoinColumn({ name: "I_CreateBy" })
     Employee_CreateBy: Employee
 
     @Column({ type: "timestamptz" })

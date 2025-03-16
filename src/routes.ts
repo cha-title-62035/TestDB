@@ -251,6 +251,11 @@ export const Routes = [/*{
     route: "/create_update_item_mapping_supplier",
     controller: ItemMappingSupplierController,
     action: "create_update"
+}, {
+    method: "post",
+    route: "/export_item_mapping_supplier",
+    controller: ItemMappingSupplierController,
+    action: "export"
 },
 
     // PO_Request
@@ -279,6 +284,16 @@ export const Routes = [/*{
     route: "/create_update_po_request",
     controller: PO_RequestController,
     action: "create_update"
+},{
+    method: "post",
+    route: "/export_po_request",
+    controller: PO_RequestController,
+    action: "export"
+},{
+    method: "post",
+    route: "/send_email_po_request",
+    controller: PO_RequestController,
+    action: "sendEmail"
 },
 
     // PO_Item

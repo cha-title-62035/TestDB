@@ -16,31 +16,9 @@ AppDataSource.initialize().then(async () => {
     app.use(express.json());
     dotenv.config()
 
-    app.post('/deliver', async (req: Request, res: Response) => {
-        let {recipient, subject, text, html, } = req.body;
-        const transporter = nodemailer.createTransport({
-            // service: "gmail",
-            host: "smtp.ethereal.email",
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD,
-            },
-        });
-    
-        const info = await transporter.sendMail({
-            from: process.env.EMAIL, 
-            to: recipient,
-            subject: subject, 
-            text: text,
-            html: html
-        });
-
-        console.log("Message sent: %s", info.messageId);
-    
-        res.status(200).send("Message sent")
-    })
+    // app.post('/deliver', async (req: Request, res: Response) => {
+        
+    // })
 
     // register express routes from defined application routes
     Routes.forEach(route => {
