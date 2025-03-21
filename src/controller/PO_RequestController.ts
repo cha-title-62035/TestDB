@@ -109,13 +109,13 @@ export class PO_RequestController {
         let {recipient, subject } = request.body;
         dotenv.config();
         const transporter = nodemailer.createTransport({
-            // service: "gmail",
-            host: "smtp.ethereal.email",
-            port: 587,
-            secure: false,
+            service: "gmail",
+            // host: "smtp.ethereal.email",
+            // port: 587,
+            // secure: false,
             auth: {
                 user: process.env.EMAIL,
-                pass: process.env.PASSWORD,
+                pass: process.env.PASSWORD
             },
         });
 

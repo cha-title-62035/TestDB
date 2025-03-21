@@ -131,7 +131,12 @@ export class ItemMappingSupplierController {
             // })
             
             // return db
-
+            // const db = await AppDataSource.query("SELECT Item.*, Supplier.* " + 
+            //     "FROM item_mapping_supplier IMS " + 
+            //     "LEFT JOIN item Item ON IMS.IMS_ItemId = Item.I_Id " + 
+            //     "LEFT JOIN supplier Supplier ON IMS.IMS_SupplierId = Supplier.S_Id")
+            // console.log(db)
+            // return db
             // return join
             // return await this.ItemMappingSupplierRepository.find()/*query(
             //     'SELECT "Item"."*", "Supplier"."*", "IMS"."*" ' + 
