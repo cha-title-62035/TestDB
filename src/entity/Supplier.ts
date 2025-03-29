@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
-import { Employee } from "./Employee"
+import { Employee_TestDB } from "./Employee"
 
 @Entity()
-export class Supplier {
+export class Supplier_TestDB {
 
     @PrimaryGeneratedColumn()
     S_Id: number
@@ -22,9 +22,9 @@ export class Supplier {
     @Column()
     S_CreateBy: number
 
-    @ManyToOne(type => Employee)
+    @ManyToOne(type => Employee_TestDB)
     @JoinColumn({ name: "S_CreateBy"})
-    Employee_CreateBy: Employee
+    Employee_CreateBy: Employee_TestDB
 
     @Column({ type: "timestamptz" })
     S_UpdateOn: Date
@@ -32,8 +32,8 @@ export class Supplier {
     @Column()
     S_UpdateBy: number
 
-    @ManyToOne(type => Employee)
+    @ManyToOne(type => Employee_TestDB)
     @JoinColumn({ name: "S_UpdateBy"})
-    Employee_UpdateBy: Employee
+    Employee_UpdateBy: Employee_TestDB
 
 }

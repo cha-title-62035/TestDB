@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
-import { Item } from "./Item"
-import { Supplier } from "./Supplier"
+import { Item_TestDB } from "./Item"
+import { Supplier_TestDB } from "./Supplier"
 
 @Entity()
-export class ItemMappingSupplier {
+export class ItemMappingSupplier_TestDB {
 
     @PrimaryGeneratedColumn()
     IMS_Id: number
@@ -11,15 +11,15 @@ export class ItemMappingSupplier {
     @Column()
     IMS_ItemId: number
 
-    @ManyToOne(type => Item)
+    @ManyToOne(type => ItemMappingSupplier_TestDB)
     @JoinColumn({ name: "IMS_ItemId"})
-    Item: Item
+    Item: ItemMappingSupplier_TestDB
 
     @Column()
     IMS_SupplierId: number
 
-    @ManyToOne(type => Supplier)
+    @ManyToOne(type => Supplier_TestDB)
     @JoinColumn({ name: "IMS_SupplierId"})
-    Supplier: Supplier
+    Supplier: Supplier_TestDB
 
 }

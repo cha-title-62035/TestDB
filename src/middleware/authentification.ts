@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
 import * as dotenv from "dotenv";
 import { AppDataSource } from "../data-source";
-import { User } from "../entity/User";
+import { User_TestDB } from "../entity/User";
 dotenv.config();
 
 export const authentification = (

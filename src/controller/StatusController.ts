@@ -1,10 +1,10 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Status } from "../entity/Status"
+import { Status_TestDB } from "../entity/Status"
 
 export class StatusController {
 
-    private StatusRepository = AppDataSource.getRepository(Status)
+    private StatusRepository = AppDataSource.getRepository(Status_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.StatusRepository.find()
@@ -39,7 +39,7 @@ export class StatusController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { Label, Order, Is_Active } = request.body;
 
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
             Label,
             Order,
             Is_Active
@@ -65,7 +65,7 @@ export class StatusController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { ST_Id, Label, Order, Is_Active } = request.body;
 
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
             ST_Id,
             Label,
             Order,
@@ -78,7 +78,7 @@ export class StatusController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { ST_Id, Label, Order, Is_Active } = request.body;
         const StatusToUpdate = await this.StatusRepository.findOneBy({ ST_Id })
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
             ST_Id,
             Label,
             Order,

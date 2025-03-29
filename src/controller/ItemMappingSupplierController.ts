@@ -1,16 +1,16 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { ItemMappingSupplier } from "../entity/ItemMappingSupplier"
-import { Item } from "../entity/Item"
-import { Supplier } from "../entity/Supplier"
+import { ItemMappingSupplier_TestDB } from "../entity/ItemMappingSupplier"
+import { Item_TestDB } from "../entity/Item"
+import { Supplier_TestDB } from "../entity/Supplier"
 import * as Excel from "exceljs"
 import * as path from "path"
-import { Category } from "../entity/Category"
+import { Category_TestDB } from "../entity/Category"
 
 export class ItemMappingSupplierController {
 
-    private ItemMappingSupplierRepository = AppDataSource.getRepository(ItemMappingSupplier)
-    private ItemRepository = AppDataSource.getRepository(Item)
+    private ItemMappingSupplierRepository = AppDataSource.getRepository(ItemMappingSupplier_TestDB)
+    private ItemRepository = AppDataSource.getRepository(Item_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.ItemMappingSupplierRepository.find()
@@ -43,7 +43,7 @@ export class ItemMappingSupplierController {
         .addSelect("Supplier")
         .addSelect("Item_Mapping_Supplier.IMS_Id")
         .addSelect("Category.Label", "Category_Label")
-        .from(ItemMappingSupplier, "Item_Mapping_Supplier")
+        .from(ItemMappingSupplier_TestDB, "Item_Mapping_Supplier")
         .leftJoin("Item_Mapping_Supplier.Item", "Item")
         .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
         .leftJoin("Item.Category", "Category")
@@ -53,7 +53,7 @@ export class ItemMappingSupplierController {
 
         db.forEach((DB) => {
             DB.Item["Item_Supplier"] = DB.Supplier.Code
-            DB.Item["Category_Label"] = DB.Item.Category.Label
+            DB.Item["Category_Label"] = DB.Item
             console.log(DB.Item)
             console.log(DB.Supplier)
             console.log(DB.Supplier.Code)
@@ -96,7 +96,7 @@ export class ItemMappingSupplierController {
             .addSelect("Supplier")
             .addSelect("Item_Mapping_Supplier.IMS_Id")
             .addSelect("Category.Label", "Category_Label")
-            .from(ItemMappingSupplier, "Item_Mapping_Supplier")
+            .from(ItemMappingSupplier_TestDB, "Item_Mapping_Supplier")
             .leftJoin("Item_Mapping_Supplier.Item", "Item")
             .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
             .leftJoin("Item.Category", "Category")
@@ -171,7 +171,7 @@ export class ItemMappingSupplierController {
         const IMS_ItemId = I_Id
         const IMS_SupplierId = S_Id
 
-        const item_mapping_supplier = Object.assign(new ItemMappingSupplier(), {
+        const item_mapping_supplier = Object.assign(new ItemMappingSupplier_TestDB(), {
             IMS_ItemId,
             IMS_SupplierId
         })
@@ -196,7 +196,7 @@ export class ItemMappingSupplierController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { IMS_Id, IMS_ItemId, IMS_SupplierId } = request.body;
 
-        const item_mapping_supplier = Object.assign(new ItemMappingSupplier(), {
+        const item_mapping_supplier = Object.assign(new ItemMappingSupplier_TestDB(), {
             IMS_Id,
             IMS_ItemId,
             IMS_SupplierId
@@ -208,7 +208,7 @@ export class ItemMappingSupplierController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { IMS_Id, IMS_ItemId, IMS_SupplierId } = request.body;
         const ItemMappingSupplierToUpdate = await this.ItemMappingSupplierRepository.findOneBy({ IMS_Id })
-        const item_mapping_supplier = Object.assign(new ItemMappingSupplier(), {
+        const item_mapping_supplier = Object.assign(new ItemMappingSupplier_TestDB(), {
             IMS_Id,
             IMS_ItemId,
             IMS_SupplierId

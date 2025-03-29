@@ -1,14 +1,14 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Status } from "../entity/Status"
-import { Employee } from "../entity/Employee"
-import { Position } from "../entity/Position"
+import { Status_TestDB } from "../entity/Status"
+import { Employee_TestDB } from "../entity/Employee"
+import { Position_TestDB } from "../entity/Position"
 
 export class JoinController {
 
-    private StatusRepository = AppDataSource.getRepository(Status)
-    private EmployeeRepository = AppDataSource.getRepository(Employee)
-    private PositionRepository = AppDataSource.getRepository(Position)
+    private StatusRepository = AppDataSource.getRepository(Status_TestDB)
+    private EmployeeRepository = AppDataSource.getRepository(Employee_TestDB)
+    private PositionRepository = AppDataSource.getRepository(Position_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.EmployeeRepository.find({
@@ -47,7 +47,7 @@ export class JoinController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { Label, Order, Is_Active } = request.body;
 
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
             Label,
             Order,
             Is_Active
@@ -73,7 +73,7 @@ export class JoinController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { ST_Id, Label, Order, Is_Active } = request.body;
 
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
             ST_Id,
             Label,
             Order,
@@ -86,7 +86,7 @@ export class JoinController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { ST_Id, Label, Order, Is_Active } = request.body;
         const StatusToUpdate = await this.StatusRepository.findOneBy({ ST_Id })
-        const status = Object.assign(new Status(), {
+        const status = Object.assign(new Status_TestDB(), {
                 ST_Id,
                 Label,
                 Order,

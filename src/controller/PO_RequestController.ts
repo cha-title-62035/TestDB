@@ -1,6 +1,6 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { PO_Request } from "../entity/PO_Request"
+import { PO_Request_TestDB } from "../entity/PO_Request"
 import * as Excel from "exceljs"
 import * as path from "path"
 import { createEmail } from "../email/template"
@@ -9,7 +9,7 @@ import * as dotenv from "dotenv"
 
 export class PO_RequestController {
 
-    private PO_RequestRepository = AppDataSource.getRepository(PO_Request)
+    private PO_RequestRepository = AppDataSource.getRepository(PO_Request_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return await this.PO_RequestRepository.createQueryBuilder("PO_Request")
@@ -215,7 +215,7 @@ export class PO_RequestController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { PR_SupplierId, PONumber, DueDate, PR_CreateBy, PR_CreateOn, PR_UpdateOn, PR_StatusId, PR_ApproverId, RejectComment } = request.body;
 
-        const po_request = Object.assign(new PO_Request(), {
+        const po_request = Object.assign(new PO_Request_TestDB(), {
             PR_SupplierId,
             PONumber,
             DueDate,
@@ -247,7 +247,7 @@ export class PO_RequestController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { PR_Id, PR_SupplierId, PONumber, DueDate, PR_CreateBy, PR_CreateOn, PR_UpdateOn, PR_StatusId, PR_ApproverId, RejectComment } = request.body;
 
-        const po_request = Object.assign(new PO_Request(), {
+        const po_request = Object.assign(new PO_Request_TestDB(), {
             PR_Id,
             PR_SupplierId,
             PONumber,
@@ -266,7 +266,7 @@ export class PO_RequestController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { PR_Id, PR_SupplierId, PONumber, DueDate, PR_CreateBy, PR_CreateOn, PR_UpdateOn, PR_StatusId, PR_ApproverId, RejectComment } = request.body;
         const PO_RequestToUpdate = await this.PO_RequestRepository.findOneBy({ PR_Id })
-        const po_request = Object.assign(new PO_Request(), {
+        const po_request = Object.assign(new PO_Request_TestDB(), {
             PR_Id,
             PR_SupplierId,
             PONumber,

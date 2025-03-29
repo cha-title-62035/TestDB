@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 @Entity()
-export class Position {
+export class Position_TestDB {
 
     @PrimaryGeneratedColumn()
     P_Id: number

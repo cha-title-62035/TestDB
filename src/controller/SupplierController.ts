@@ -1,10 +1,10 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Supplier } from "../entity/Supplier"
+import { Supplier_TestDB } from "../entity/Supplier"
 
 export class SupplierController {
 
-    private SupplierRepository = AppDataSource.getRepository(Supplier)
+    private SupplierRepository = AppDataSource.getRepository(Supplier_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.SupplierRepository.find()
@@ -39,7 +39,7 @@ export class SupplierController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
 
-        const supplier = Object.assign(new Supplier(), {
+        const supplier = Object.assign(new Supplier_TestDB(), {
             Code,
             Name,
             IsActive,
@@ -69,7 +69,7 @@ export class SupplierController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { S_Id, Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
 
-        const supplier = Object.assign(new Supplier(), {
+        const supplier = Object.assign(new Supplier_TestDB(), {
             S_Id,
             Code,
             Name,
@@ -86,7 +86,7 @@ export class SupplierController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { S_Id, Code, Name, IsActive, S_CreateOn, S_CreateBy, S_UpdateBy, S_UpdateOn } = request.body;
         const SupplierToUpdate = await this.SupplierRepository.findOneBy({ S_Id })
-        const supplier = Object.assign(new Supplier(), {
+        const supplier = Object.assign(new Supplier_TestDB(), {
             S_Id,
             Code,
             Name,

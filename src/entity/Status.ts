@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 @Entity()
-export class Status {
+export class Status_TestDB {
 
     @PrimaryGeneratedColumn()
     ST_Id: number

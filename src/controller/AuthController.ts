@@ -1,13 +1,13 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express";
-import { User } from "../entity/User"
+import { User_TestDB } from "../entity/User"
 // import { UserController } from "./UserController"
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt"
 
 export class AuthController{
 
-    private userRepository = AppDataSource.getRepository(User)
+    private userRepository = AppDataSource.getRepository(User_TestDB)
 
     async login(req: Request, res: Response, next: NextFunction) {
         const { email, password } = req.body
@@ -49,7 +49,7 @@ export class AuthController{
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        const user = Object.assign(new User(), {
+        const user = Object.assign(new User_TestDB(), {
             email,
             password,
             age

@@ -1,10 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany, OneToMany, JoinTable } from "typeorm"
-import { Employee } from "./Employee"
-import { ItemMappingSupplier } from "./ItemMappingSupplier"
-import { Category } from "./Category"
+import { Employee_TestDB } from "./Employee"
+import { ItemMappingSupplier_TestDB } from "./ItemMappingSupplier"
+import { Category_TestDB } from "./Category"
 
 @Entity()
-export class Item {
+export class Item_TestDB {
 
     @PrimaryGeneratedColumn()
     I_Id: number
@@ -18,9 +18,9 @@ export class Item {
     @Column()
     I_CategoryId: number
 
-    @ManyToOne(type => Category)
+    @ManyToOne(type => Category_TestDB)
     @JoinColumn({ name: "I_CategoryId" })
-    Category: Category
+    Category: Category_TestDB
 
     @Column({ type: "decimal" })
     Price: number
@@ -34,9 +34,9 @@ export class Item {
     @Column()
     I_CreateBy: number
 
-    @ManyToOne(type => Employee)
+    @ManyToOne(type => Employee_TestDB)
     @JoinColumn({ name: "I_CreateBy" })
-    Employee_CreateBy: Employee
+    Employee_CreateBy: Employee_TestDB
 
     @Column({ type: "timestamptz" })
     I_CreateOn: Date
@@ -44,15 +44,15 @@ export class Item {
     @Column()
     I_UpdateBy: number
 
-    @ManyToOne(type => Employee)
+    @ManyToOne(type => Employee_TestDB)
     @JoinColumn({ name: "I_UpdateBy"})
-    Employee_UpdateBy: Employee
+    Employee_UpdateBy: Employee_TestDB
 
     @Column({ type: "timestamptz" })
     I_UpdateOn: Date
 
-    @OneToMany(type => ItemMappingSupplier, ItemMappingSupplier => ItemMappingSupplier.Item)
+    @OneToMany(type => ItemMappingSupplier_TestDB, ItemMappingSupplier => ItemMappingSupplier.Item)
     @JoinTable()
-    ItemMappingSupplier: ItemMappingSupplier
+    ItemMappingSupplier: ItemMappingSupplier_TestDB
 
 }

@@ -1,10 +1,10 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Employee } from "../entity/Employee"
+import { Employee_TestDB } from "../entity/Employee"
 
 export class EmployeeController {
 
-    private EmployeeRepository = AppDataSource.getRepository(Employee)
+    private EmployeeRepository = AppDataSource.getRepository(Employee_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.EmployeeRepository.find()
@@ -41,7 +41,7 @@ export class EmployeeController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { EmployeeCode, E_PositionId } = request.body;
 
-        const employee = Object.assign(new Employee(), {
+        const employee = Object.assign(new Employee_TestDB(), {
             EmployeeCode,
             E_PositionId
         })
@@ -66,7 +66,7 @@ export class EmployeeController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { E_Id, EmployeeCode, E_PositionId } = request.body;
 
-        const employee = Object.assign(new Employee(), {
+        const employee = Object.assign(new Employee_TestDB(), {
             E_Id,
             EmployeeCode,
             E_PositionId
@@ -78,7 +78,7 @@ export class EmployeeController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { E_Id, Label, Order, Is_Active } = request.body;
         const EmployeeToUpdate = await this.EmployeeRepository.findOneBy({ E_Id })
-        const employee = Object.assign(new Employee(), {
+        const employee = Object.assign(new Employee_TestDB(), {
                 E_Id,
                 Label,
                 Order,

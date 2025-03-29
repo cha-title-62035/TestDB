@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm"
-import { Position } from "./Position"
+import { Position_TestDB } from "./Position"
 
 @Entity()
-export class Employee {
+export class Employee_TestDB {
 
     @PrimaryGeneratedColumn()
     E_Id: number
@@ -13,8 +13,8 @@ export class Employee {
     @Column()
     E_PositionId: number
 
-    @ManyToOne((type) => Position, (position) => position.P_Id)
+    @ManyToOne((type) => Position_TestDB, (position) => position.P_Id)
     @JoinColumn({ name: "E_PositionId"})
-    Position: Position
+    Position: Position_TestDB
 
 }

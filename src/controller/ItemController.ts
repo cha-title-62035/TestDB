@@ -1,10 +1,10 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Item } from "../entity/Item"
+import { Item_TestDB } from "../entity/Item"
 
 export class ItemController {
 
-    private ItemRepository = AppDataSource.getRepository(Item)
+    private ItemRepository = AppDataSource.getRepository(Item_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.ItemRepository.find()
@@ -43,7 +43,7 @@ export class ItemController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { Code, Name, I_CategoryId, Price, Unit, IsActive, I_CreateBy, I_CreateOn, I_UpdateBy, I_UpdateOn } = request.body;
 
-        const item = Object.assign(new Item(), {
+        const item = Object.assign(new Item_TestDB(), {
             Code,
             Name,
             I_CategoryId,
@@ -76,7 +76,7 @@ export class ItemController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { I_Id, Code, Name, I_CategoryId, Price, Unit, IsActive, I_CreateBy, I_CreateOn, I_UpdateBy, I_UpdateOn } = request.body;
 
-        const item = Object.assign(new Item(), {
+        const item = Object.assign(new Item_TestDB(), {
             I_Id,
             Code,
             Name,
@@ -96,7 +96,7 @@ export class ItemController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { I_Id, Code, Name, I_CategoryId, Price, Unit, IsActive, I_CreateBy, I_CreateOn, I_UpdateBy, I_UpdateOn } = request.body;
         const ItemToUpdate = await this.ItemRepository.findOneBy({ I_Id })
-        const item = Object.assign(new Item(), {
+        const item = Object.assign(new Item_TestDB(), {
             I_Id,
             Code,
             Name,

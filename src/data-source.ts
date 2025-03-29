@@ -1,15 +1,15 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
-import { User } from "./entity/User"
-import { Status } from "./entity/Status"
-import { Employee } from "./entity/Employee"
-import { Position } from "./entity/Position"
-import { Supplier } from "./entity/Supplier"
-import { Category } from "./entity/Category"
-import { Item } from "./entity/Item"
-import { ItemMappingSupplier } from "./entity/ItemMappingSupplier"
-import { PO_Request } from "./entity/PO_Request"
-import { PO_Item } from "./entity/PO_Item"
+import { User_TestDB } from "./entity/User"
+import { Status_TestDB } from "./entity/Status"
+import { Employee_TestDB } from "./entity/Employee"
+import { Position_TestDB } from "./entity/Position"
+import { Supplier_TestDB } from "./entity/Supplier"
+import { Category_TestDB } from "./entity/Category"
+import { Item_TestDB } from "./entity/Item"
+import { ItemMappingSupplier_TestDB } from "./entity/ItemMappingSupplier"
+import { PO_Request_TestDB } from "./entity/PO_Request"
+import { PO_Item_TestDB } from "./entity/PO_Item"
 import * as dotenv from "dotenv"
 
 dotenv.config();
@@ -27,7 +27,7 @@ export const AppDataSource = new DataSource({
     // database: process.env.PG_DATABASE || "test_gxe8",
     synchronize: true,
     logging: false,
-    entities: [User, Employee, Position, Supplier, Category, Item, ItemMappingSupplier, PO_Request, PO_Item, Status],
+    entities: [User_TestDB, Employee_TestDB, Position_TestDB, Supplier_TestDB, Category_TestDB, Item_TestDB, ItemMappingSupplier_TestDB, PO_Request_TestDB, PO_Item_TestDB, Status_TestDB],
     ssl: true,
     migrations: [],
     subscribers: [],

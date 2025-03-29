@@ -1,10 +1,10 @@
 import { AppDataSource } from "../data-source"
 import { NextFunction, Request, Response } from "express"
-import { Category } from "../entity/Category"
+import { Category_TestDB } from "../entity/Category"
 
 export class CategoryController {
 
-    private CategoryRepository = AppDataSource.getRepository(Category)
+    private CategoryRepository = AppDataSource.getRepository(Category_TestDB)
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.CategoryRepository.find()
@@ -39,7 +39,7 @@ export class CategoryController {
     async save(request: Request, response: Response, next: NextFunction) {
         const { Label, Order, Is_Active } = request.body;
 
-        const category = Object.assign(new Category(), {
+        const category = Object.assign(new Category_TestDB(), {
             Label,
             Order,
             Is_Active
@@ -65,7 +65,7 @@ export class CategoryController {
     async update(request: Request, response: Response, next: NextFunction) {
         const { C_Id, Label, Order, Is_Active } = request.body;
 
-        const category = Object.assign(new Category(), {
+        const category = Object.assign(new Category_TestDB(), {
             C_Id,
             Label,
             Order,
@@ -78,7 +78,7 @@ export class CategoryController {
     async create_update(request: Request, response: Response, next: NextFunction) {
         const { C_Id, Label, Order, Is_Active } = request.body;
         const CategoryToUpdate = await this.CategoryRepository.findOneBy({ C_Id })
-        const category = Object.assign(new Category(), {
+        const category = Object.assign(new Category_TestDB(), {
             C_Id,
             Label,
             Order,
