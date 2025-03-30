@@ -16,6 +16,11 @@ export class ItemMappingSupplierController {
         return this.ItemMappingSupplierRepository.find()
     }
 
+    async import(request: Request, response: Response, next: NextFunction) {
+        
+    }
+
+
     async export(request: Request, response: Response, next: NextFunction) {
         const workbook = new Excel.Workbook();
         const worksheetSupplier = workbook.addWorksheet("Supplier");
@@ -47,13 +52,15 @@ export class ItemMappingSupplierController {
         .leftJoin("Item_Mapping_Supplier.Item", "Item")
         .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
         .leftJoin("Item.Category", "Category")
+        .orderBy("Supplier.Code", "ASC")
+        .addOrderBy("Item.Code", "ASC")
         .getMany()
 
         console.log(db)
 
         db.forEach((DB) => {
             DB.Item["Item_Supplier"] = DB.Supplier.Code
-            DB.Item["Category_Label"] = DB.Item
+            DB.Item["Category_Label"] = DB.Item.Category.Label
             console.log(DB.Item)
             console.log(DB.Supplier)
             console.log(DB.Supplier.Code)
@@ -72,8 +79,11 @@ export class ItemMappingSupplierController {
         + "-" + addZero(d.getHours()) + addZero(d.getMinutes()) + addZero(d.getSeconds());
 
         const exportPath = path.resolve("./src/files/", "Supplier_Item_" + timestamptz + ".xlsx")
-        await workbook.xlsx.writeFile(exportPath);
-        return "Finished"
+        // await workbook.xlsx.writeFile(exportPath);
+        let buffer = await workbook.xlsx.writeBuffer();
+        // response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        
+        return response.set("Content-Disposition", "attachment; filename=Supplier_Item_" + timestamptz + ".xlsx").send(buffer);
     }
 
     async one(request: Request, response: Response, next: NextFunction) {

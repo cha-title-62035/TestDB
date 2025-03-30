@@ -11,9 +11,9 @@ export class ItemMappingSupplier_TestDB {
     @Column()
     IMS_ItemId: number
 
-    @ManyToOne(type => ItemMappingSupplier_TestDB)
+    @ManyToOne(type => Item_TestDB)
     @JoinColumn({ name: "IMS_ItemId"})
-    Item: ItemMappingSupplier_TestDB
+    Item: Item_TestDB
 
     @Column()
     IMS_SupplierId: number

@@ -27,7 +27,7 @@ export class AuthController{
         const IsPasswordValid = await bcrypt.compare(password, check_user.password);
 
         if(IsPasswordValid){
-            const token = jwt.sign({user: check_user}, "TestDB", {expiresIn: "1h"});
+            const token = jwt.sign({user: check_user}, "TestDB", {expiresIn: "7d"});
             let obj = {
                 //user: check_user,
                 token: token,
