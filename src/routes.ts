@@ -256,6 +256,11 @@ export const Routes = [/*{
     route: "/export_item_mapping_supplier",
     controller: ItemMappingSupplierController,
     action: "export"
+}, {
+    method: "post",
+    route: "/import_item_mapping_supplier",
+    controller: ItemMappingSupplierController,
+    action: "import"
 },
 
     // PO_Request

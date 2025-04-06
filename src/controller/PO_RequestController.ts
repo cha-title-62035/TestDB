@@ -6,6 +6,8 @@ import * as path from "path"
 import { createEmail } from "../email/template"
 import * as nodemailer from "nodemailer"
 import * as dotenv from "dotenv"
+import * as exceltojson from "convert-excel-to-json"
+import { Brackets, IsNull } from "typeorm"
 
 export class PO_RequestController {
 
@@ -15,6 +17,98 @@ export class PO_RequestController {
         return await this.PO_RequestRepository.createQueryBuilder("PO_Request")
         .leftJoinAndSelect("PO_Request.Supplier", "Supplier.Code, Supplier.Name")
         .getRawMany();
+    }
+
+    async import(request: Request, response: Response, next: NextFunction) {
+        try {
+            // const workbook = new Excel.Workbook();
+            // await workbook.xlsx.load(request.file.buffer);
+            // const worksheet = workbook.getWorksheet("ItemSupplier")
+            // // const workbook = XLSX.read(request.file)
+            // // const worksheet = workbook.SheetNames;
+            
+
+            // if (!worksheet/* || worksheet[0] != "ItemSupplier"*/){
+            //     throw new Error("Worksheet not found").message;
+            // }
+            
+            // const data = JSON.stringify(workbook.model)
+            // const data = XLSX.utils.sheet_to_json(workbook.Sheets[worksheet[0]])
+            // headerRowNumber is the number of the row with the titles counting from 1
+
+            const data = exceltojson({
+                source: request.file.buffer,
+                header: {
+                    rows: 1
+                },
+                columnToKey: {
+                    '*': '{{columnHeader}}'
+                }
+            });
+
+            if (!data.ItemSupplier) {
+                throw new Error("Worksheet not found").message;
+            }
+            
+            console.log(data.ItemSupplier)
+            const db: any = []
+            data.ItemSupplier.forEach(json_data_set => {
+                // console.log(json_data_set)
+                // console.log(json_data_set.IMS_ItemId)
+                // db.push(json_data_set.IMS_ItemId)
+                // db.push(json_data_set.IMS_SupplierId)
+                
+                // let IMS_ItemId = json_data_set.IMS_ItemId
+                // let IMS_SupplierId = json_data_set.IMS_SupplierId
+                let { PR_SupplierId,
+                PONumber,
+                DueDate,
+                PR_CreateBy,
+                PR_CreateOn,
+                PR_UpdateOn,
+                PR_StatusId,
+                PR_ApproverId,
+                RejectComment } = json_data_set
+                // Object.keys(json_data_set).forEach( key =>{
+                //     table += "<td>"
+                //     table += json_data_set[key] + "</td>";
+                //     let IMS_ItemId = 0
+                //     let IMS_SupplierId = 0
+                // })
+
+                const po_request = Object.assign(new PO_Request_TestDB(), {
+                    PR_SupplierId,
+                    PONumber,
+                    DueDate,
+                    PR_CreateBy,
+                    PR_CreateOn,
+                    PR_UpdateOn,
+                    PR_StatusId,
+                    PR_ApproverId,
+                    RejectComment
+                })
+
+                // let dt = await this.ItemMappingSupplierRepository.save(item_mapping_supplier);
+                AppDataSource.manager.transaction(async transactionalEntityManager => {
+                    await this.PO_RequestRepository.save(po_request)
+                })
+                
+                db.push(po_request)
+
+            });
+
+            return db
+
+            /*worksheet.eachRow((row, rowNumber) => {
+                const rowValues
+            })*/
+        }
+
+        catch(error: any) {
+            console.log('ROLLBACK')
+            console.error(error);
+            throw error
+        }
     }
 
     async export(request: Request, response: Response, next: NextFunction) {
@@ -43,52 +137,174 @@ export class PO_RequestController {
             counter ++;
         });
 
-        const db = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
-        .select("PO_Request.PR_Id")
-        .addSelect("PO_Request.PONumber")
-        .addSelect(["Supplier.Code", "Supplier.Name"])
-        .addSelect("PO_Request.DueDate")
-        .addSelect("CreateBy.EmployeeCode")
-        .addSelect("Status.Label")
-        .addSelect("Approver.EmployeeCode")
-        .addSelect("PO_Request.RejectComment")
-        .addSelect("SUM(PO_Item.Amount)", "sumAmount")
-        .addSelect("PO_Request.PR_UpdateOn")
-        .groupBy("PO_Request.PR_Id")
-        .addGroupBy("PO_Request.PONumber")
-        .addGroupBy("Supplier.Code")
-        .addGroupBy("Supplier.Name")
-        .addGroupBy("PO_Request.DueDate")
-        .addGroupBy("CreateBy.EmployeeCode")
-        .addGroupBy("Status.Label")
-        .addGroupBy("Approver.EmployeeCode")
-        .addGroupBy("PO_Request.RejectComment")
-        .addGroupBy("PO_Request.PR_UpdateOn")
-        .leftJoin("PO_Request.Supplier", "Supplier")
-        .leftJoin("PO_Request.Employee_CreateBy", "CreateBy")
-        .leftJoin("PO_Request.Status", "Status")
-        .leftJoin("PO_Request.Employee_ApproverId", "Approver")
-        .leftJoin("PO_Request.PO_Item", "PO_Item")
-        .getRawMany();
-    
-        console.log(db)
+        const Rawurl = request.url;
+        const url = Rawurl.replace("/item_mapping_supplier", "");
 
-        // worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
-        //     console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
-        // });
-        // worksheet.addRows(db)
-        var counter = 2;
-        db.forEach((DB) => {
-            worksheet.getRow(counter).values = DB
-            counter ++
-        //     DB.Item["Item_Supplier"] = DB.Supplier.Code
-        //     DB.Item["Category_Label"] = DB.Item.Category.Label
-        //     console.log(DB.Item)
-        //     console.log(DB.Supplier)
-        //     console.log(DB.Supplier.Code)
-        //     worksheetItem.addRow(DB.Item)
-        //     worksheetSupplier.addRow(DB.Supplier)
-        });
+        if(url == ""){
+            const db = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
+            .select("PO_Request.PR_Id")
+            .addSelect("PO_Request.PONumber")
+            .addSelect(["Supplier.Code", "Supplier.Name"])
+            .addSelect("PO_Request.DueDate")
+            .addSelect("CreateBy.EmployeeCode")
+            .addSelect("Status.Label")
+            .addSelect("Approver.EmployeeCode")
+            .addSelect("PO_Request.RejectComment")
+            .addSelect("SUM(PO_Item.Amount)", "sumAmount")
+            .addSelect("PO_Request.PR_UpdateOn")
+            .groupBy("PO_Request.PR_Id")
+            .addGroupBy("PO_Request.PONumber")
+            .addGroupBy("Supplier.Code")
+            .addGroupBy("Supplier.Name")
+            .addGroupBy("PO_Request.DueDate")
+            .addGroupBy("CreateBy.EmployeeCode")
+            .addGroupBy("Status.Label")
+            .addGroupBy("Approver.EmployeeCode")
+            .addGroupBy("PO_Request.RejectComment")
+            .addGroupBy("PO_Request.PR_UpdateOn")
+            .leftJoin("PO_Request.Supplier", "Supplier")
+            .leftJoin("PO_Request.Employee_CreateBy", "CreateBy")
+            .leftJoin("PO_Request.Status", "Status")
+            .leftJoin("PO_Request.Employee_ApproverId", "Approver")
+            .leftJoin("PO_Request.PO_Item", "PO_Item")
+            .getRawMany();
+        
+            console.log(db)
+
+            // worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
+            //     console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
+            // });
+            // worksheet.addRows(db)
+            var counter = 2;
+            db.forEach((DB) => {
+                worksheet.getRow(counter).values = DB
+                counter ++
+            //     DB.Item["Item_Supplier"] = DB.Supplier.Code
+            //     DB.Item["Category_Label"] = DB.Item.Category.Label
+            //     console.log(DB.Item)
+            //     console.log(DB.Supplier)
+            //     console.log(DB.Supplier.Code)
+            //     worksheetItem.addRow(DB.Item)
+            //     worksheetSupplier.addRow(DB.Supplier)
+            });
+        }
+        else {
+            const urlParams = new URLSearchParams(url);
+        
+            if (urlParams.getAll.length == 0){
+                return "Invalid URL"
+            }
+            const PR_Id = parseInt(urlParams.get("id"));
+            const PONumber = urlParams.get("po_number");
+            const Supplier_Code = urlParams.get("supplier_code");
+            const Supplier_Name = urlParams.get("supplier_name");
+            const DueDate_Start = urlParams.get("duedate_start");
+            const DueDate_End = urlParams.get("duedate_end");
+            const Status_Label = urlParams.get("status_label");
+            const Approver_EmployeeCode = urlParams.get("approver");
+            const RejectComment = urlParams.get("reject_comment");
+
+            const db = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
+            .select("PO_Request.PR_Id")
+            .addSelect("PO_Request.PONumber")
+            .addSelect(["Supplier.Code", "Supplier.Name"])
+            .addSelect("PO_Request.DueDate")
+            .addSelect("CreateBy.EmployeeCode")
+            .addSelect("Status.Label")
+            .addSelect("Approver.EmployeeCode")
+            .addSelect("PO_Request.RejectComment")
+            .addSelect("SUM(PO_Item.Amount)", "sumAmount")
+            .addSelect("PO_Request.PR_UpdateOn")
+            .groupBy("PO_Request.PR_Id")
+            .addGroupBy("PO_Request.PONumber")
+            .addGroupBy("Supplier.Code")
+            .addGroupBy("Supplier.Name")
+            .addGroupBy("PO_Request.DueDate")
+            .addGroupBy("CreateBy.EmployeeCode")
+            .addGroupBy("Status.Label")
+            .addGroupBy("Approver.EmployeeCode")
+            .addGroupBy("PO_Request.RejectComment")
+            .addGroupBy("PO_Request.PR_UpdateOn")
+            .where(
+                new Brackets((qb) => {
+                    qb.where("PO_Request.PR_Id = :PR_Id", { PR_Id })
+                    .orWhere("PR_Id = 0", { PR_Id })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("PO_Request.PONumber = :PONumber", { PONumber })
+                    .orWhere("PONumber = ''", { PONumber })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("Supplier.Code = :Supplier_Code", { Supplier_Code })
+                    .orWhere("Supplier_Code = ''", { Supplier_Code })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("Supplier.Name = :Supplier_Name", { Supplier_Name })
+                    .orWhere("Supplier_Name = ''", { Supplier_Name })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
+                    .orWhere("DueDate_Start = ''", { DueDate_Start })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
+                    .orWhere("DueDate_End = ''", { DueDate_End })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("Status.Label = :Status_Label", { Status_Label })
+                    .orWhere("Status_Label = ''", { Status_Label })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("Approver.EmployeeCode = :Approver_EmployeeCode", { Approver_EmployeeCode })
+                    .orWhere("Approver_EmployeeCode = ''", { Approver_EmployeeCode })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("PO_Request.RejectComment = :RejectComment", { RejectComment })
+                    .orWhere("RejectComment = ''", { RejectComment })
+                })
+            )
+            .leftJoin("PO_Request.Supplier", "Supplier")
+            .leftJoin("PO_Request.Employee_CreateBy", "CreateBy")
+            .leftJoin("PO_Request.Status", "Status")
+            .leftJoin("PO_Request.Employee_ApproverId", "Approver")
+            .leftJoin("PO_Request.PO_Item", "PO_Item")
+            .getRawMany();
+        
+            console.log(db)
+
+            // worksheet.eachRow({ includeEmpty: true }, function(row, rowNumber) {
+            //     console.log('Row ' + rowNumber + ' = ' + JSON.stringify(row.values));
+            // });
+            // worksheet.addRows(db)
+            var counter = 2;
+            db.forEach((DB) => {
+                worksheet.getRow(counter).values = DB
+                counter ++
+            //     DB.Item["Item_Supplier"] = DB.Supplier.Code
+            //     DB.Item["Category_Label"] = DB.Item.Category.Label
+            //     console.log(DB.Item)
+            //     console.log(DB.Supplier)
+            //     console.log(DB.Supplier.Code)
+            //     worksheetItem.addRow(DB.Item)
+            //     worksheetSupplier.addRow(DB.Supplier)
+            });
+        }
 
         function addZero(i) {
             if (i < 10) {
@@ -200,11 +416,99 @@ export class PO_RequestController {
             return "Invalid URL"
         }
         const PR_Id = parseInt(urlParams.get("id"));
+        const PONumber = urlParams.get("po_number");
+        const Supplier_Code = urlParams.get("supplier_code");
+        const Supplier_Name = urlParams.get("supplier_name");
+        const DueDate_Start = urlParams.get("duedate_start");
+        const DueDate_End = urlParams.get("duedate_end");
+        const Status_Label = urlParams.get("status_label");
+        const Approver_EmployeeCode = urlParams.get("approver");
+        const RejectComment = urlParams.get("reject_comment");
 
-
-        const PO_Request = await this.PO_RequestRepository.findOne({
-            where: { PR_Id }
-        })
+        const PO_Request = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
+        .select("PO_Request.PR_Id")
+        .addSelect("PO_Request.PONumber")
+        .addSelect(["Supplier.Code", "Supplier.Name"])
+        .addSelect("PO_Request.DueDate")
+        .addSelect("CreateBy.EmployeeCode")
+        .addSelect("Status.Label")
+        .addSelect("Approver.EmployeeCode")
+        .addSelect("PO_Request.RejectComment")
+        .addSelect("SUM(PO_Item.Amount)", "sumAmount")
+        .addSelect("PO_Request.PR_UpdateOn")
+        .groupBy("PO_Request.PR_Id")
+        .addGroupBy("PO_Request.PONumber")
+        .addGroupBy("Supplier.Code")
+        .addGroupBy("Supplier.Name")
+        .addGroupBy("PO_Request.DueDate")
+        .addGroupBy("CreateBy.EmployeeCode")
+        .addGroupBy("Status.Label")
+        .addGroupBy("Approver.EmployeeCode")
+        .addGroupBy("PO_Request.RejectComment")
+        .addGroupBy("PO_Request.PR_UpdateOn")
+        .where(
+            new Brackets((qb) => {
+                qb.where("PO_Request.PR_Id = :PR_Id", { PR_Id })
+                .orWhere("PR_Id = 0", { PR_Id })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("PO_Request.PONumber = :PONumber", { PONumber })
+                .orWhere("PONumber = ''", { PONumber })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("Supplier.Code = :Supplier_Code", { Supplier_Code })
+                .orWhere("Supplier_Code = ''", { Supplier_Code })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("Supplier.Name = :Supplier_Name", { Supplier_Name })
+                .orWhere("Supplier_Name = ''", { Supplier_Name })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
+                .orWhere("DueDate_Start = ''", { DueDate_Start })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
+                .orWhere("DueDate_End = ''", { DueDate_End })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("Status.Label = :Status_Label", { Status_Label })
+                .orWhere("Status_Label = ''", { Status_Label })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("Approver.EmployeeCode = :Approver_EmployeeCode", { Approver_EmployeeCode })
+                .orWhere("Approver_EmployeeCode = ''", { Approver_EmployeeCode })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("PO_Request.RejectComment = :RejectComment", { RejectComment })
+                .orWhere("RejectComment = ''", { RejectComment })
+            })
+        )
+        .leftJoin("PO_Request.Supplier", "Supplier")
+        .leftJoin("PO_Request.Employee_CreateBy", "CreateBy")
+        .leftJoin("PO_Request.Status", "Status")
+        .leftJoin("PO_Request.Employee_ApproverId", "Approver")
+        .leftJoin("PO_Request.PO_Item", "PO_Item")
+        .getRawMany();
+        /*await this.PO_RequestRepository.findOne({
+            where: { Or(PR_Id: PR_Id, PR_Id = "") }
+        })*/
 
         if (!PO_Request) {
             return "unregistered PO_Request"

@@ -6,6 +6,9 @@ import { Supplier_TestDB } from "../entity/Supplier"
 import * as Excel from "exceljs"
 import * as path from "path"
 import { Category_TestDB } from "../entity/Category"
+import * as XLSX from "xlsx"
+import * as exceltojson from "convert-excel-to-json"
+import { Brackets, Equal, ILike } from "typeorm"
 
 export class ItemMappingSupplierController {
 
@@ -17,7 +20,79 @@ export class ItemMappingSupplierController {
     }
 
     async import(request: Request, response: Response, next: NextFunction) {
-        
+        try {
+            // const workbook = new Excel.Workbook();
+            // await workbook.xlsx.load(request.file.buffer);
+            // const worksheet = workbook.getWorksheet("ItemSupplier")
+            // // const workbook = XLSX.read(request.file)
+            // // const worksheet = workbook.SheetNames;
+            
+
+            // if (!worksheet/* || worksheet[0] != "ItemSupplier"*/){
+            //     throw new Error("Worksheet not found").message;
+            // }
+            
+            // const data = JSON.stringify(workbook.model)
+            // const data = XLSX.utils.sheet_to_json(workbook.Sheets[worksheet[0]])
+            // headerRowNumber is the number of the row with the titles counting from 1
+
+            const data = exceltojson({
+                source: request.file.buffer,
+                header: {
+                    rows: 1
+                },
+                columnToKey: {
+                    '*': '{{columnHeader}}'
+                }
+            });
+
+            if (!data.ItemSupplier) {
+                throw new Error("Worksheet not found").message;
+            }
+            
+            console.log(data.ItemSupplier)
+            const db: any = []
+            data.ItemSupplier.forEach(json_data_set => {
+                // console.log(json_data_set)
+                // console.log(json_data_set.IMS_ItemId)
+                // db.push(json_data_set.IMS_ItemId)
+                // db.push(json_data_set.IMS_SupplierId)
+                
+                let IMS_ItemId = json_data_set.IMS_ItemId
+                let IMS_SupplierId = json_data_set.IMS_SupplierId
+                // Object.keys(json_data_set).forEach( key =>{
+                //     table += "<td>"
+                //     table += json_data_set[key] + "</td>";
+                //     let IMS_ItemId = 0
+                //     let IMS_SupplierId = 0
+                // })
+
+                const item_mapping_supplier = Object.assign(new ItemMappingSupplier_TestDB(), {
+                    IMS_ItemId,
+                    IMS_SupplierId
+                })
+
+                // let dt = await this.ItemMappingSupplierRepository.save(item_mapping_supplier);
+                AppDataSource.manager.transaction(async transactionalEntityManager => {
+                    await this.ItemMappingSupplierRepository.save(item_mapping_supplier)
+                })
+                
+                db.push(item_mapping_supplier)
+
+            });
+
+            return db
+
+            /*worksheet.eachRow((row, rowNumber) => {
+                const rowValues
+            })*/
+        }
+
+        catch(error: any) {
+            console.log('ROLLBACK')
+            console.error(error);
+            throw error
+        }
     }
 
 
@@ -42,31 +117,83 @@ export class ItemMappingSupplierController {
         worksheetSupplier.columns = SupplierColumns;
         worksheetItem.columns = ItemColumns;
 
-        const db = await AppDataSource.createQueryBuilder()
-        .select("Item")
-        // .addSelect("Supplier.Code", "Item_Supplier")
-        .addSelect("Supplier")
-        .addSelect("Item_Mapping_Supplier.IMS_Id")
-        .addSelect("Category.Label", "Category_Label")
-        .from(ItemMappingSupplier_TestDB, "Item_Mapping_Supplier")
-        .leftJoin("Item_Mapping_Supplier.Item", "Item")
-        .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
-        .leftJoin("Item.Category", "Category")
-        .orderBy("Supplier.Code", "ASC")
-        .addOrderBy("Item.Code", "ASC")
-        .getMany()
+        const Rawurl = request.url;
+        const url = Rawurl.replace("/item_mapping_supplier", "");
 
-        console.log(db)
+        if(url == ""){
+            const db = await AppDataSource.createQueryBuilder()
+            .select("Item")
+            // .addSelect("Supplier.Code", "Item_Supplier")
+            .addSelect("Supplier")
+            .addSelect("Item_Mapping_Supplier.IMS_Id")
+            .addSelect("Category.Label", "Category_Label")
+            .from(ItemMappingSupplier_TestDB, "Item_Mapping_Supplier")
+            .leftJoin("Item_Mapping_Supplier.Item", "Item")
+            .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
+            .leftJoin("Item.Category", "Category")
+            .orderBy("Supplier.Code", "ASC")
+            .addOrderBy("Item.Code", "ASC")
+            .getMany()
+        
+            console.log(db)
 
-        db.forEach((DB) => {
-            DB.Item["Item_Supplier"] = DB.Supplier.Code
-            DB.Item["Category_Label"] = DB.Item.Category.Label
-            console.log(DB.Item)
-            console.log(DB.Supplier)
-            console.log(DB.Supplier.Code)
-            worksheetItem.addRow(DB.Item)
-            worksheetSupplier.addRow(DB.Supplier)
-        });
+            db.forEach((DB) => {
+                DB.Item["Item_Supplier"] = DB.Supplier.Code
+                DB.Item["Category_Label"] = DB.Item.Category.Label
+                console.log(DB.Item)
+                console.log(DB.Supplier)
+                console.log(DB.Supplier.Code)
+                worksheetItem.addRow(DB.Item)
+                worksheetSupplier.addRow(DB.Supplier)
+            });
+        }
+        else {
+            const urlParams = new URLSearchParams(url);
+        
+            if (urlParams.getAll.length == 0){
+                return "Invalid URL"
+            }
+            const S_Code = urlParams.get("s_code");
+            const I_Code = urlParams.get("i_code");
+
+            const db = await AppDataSource.createQueryBuilder()
+            .select("Item")
+            // .addSelect("Supplier.Code", "Item_Supplier")
+            .addSelect("Supplier")
+            .addSelect("Item_Mapping_Supplier.IMS_Id")
+            .addSelect("Category.Label", "Category_Label")
+            .from(ItemMappingSupplier_TestDB, "Item_Mapping_Supplier")
+            .leftJoin("Item_Mapping_Supplier.Item", "Item")
+            .leftJoin("Item_Mapping_Supplier.Supplier", "Supplier")
+            .leftJoin("Item.Category", "Category")
+            .where(
+                new Brackets((qb) => {
+                    qb.where("Supplier.Code = :S_Code", { S_Code })
+                    .orWhere("S_Code = ''", { S_Code })
+                })
+            )
+            .andWhere(
+                new Brackets((qb) => {
+                    qb.where("Item.Code = :I_Code", { I_Code })
+                    .orWhere("I_Code = ''", { I_Code })
+                })
+            )
+            .orderBy("Supplier.Code", "ASC")
+            .addOrderBy("Item.Code", "ASC")
+            .getMany()
+        
+            console.log(db)
+
+            db.forEach((DB) => {
+                DB.Item["Item_Supplier"] = DB.Supplier.Code
+                DB.Item["Category_Label"] = DB.Item.Category.Label
+                console.log(DB.Item)
+                console.log(DB.Supplier)
+                console.log(DB.Supplier.Code)
+                worksheetItem.addRow(DB.Item)
+                worksheetSupplier.addRow(DB.Supplier)
+            });
+        }
 
         function addZero(i) {
             if (i < 10) {
@@ -160,11 +287,14 @@ export class ItemMappingSupplierController {
         if (urlParams.getAll.length == 0){
             return "Invalid URL"
         }
-        const IMS_Id = parseInt(urlParams.get("id"));
-
+        const IMS_ItemId = parseInt(urlParams.get("i_id"));
+        const IMS_SupplierId = parseInt(urlParams.get("s_id"));
 
         const ItemMappingSuppliers = await this.ItemMappingSupplierRepository.findOne({
-            where: { IMS_Id }
+            where: { 
+                IMS_ItemId,
+                IMS_SupplierId 
+             } //ILike("%" + IMS_ItemId + "%") }]
         })
 
         if (!ItemMappingSuppliers) {
@@ -186,7 +316,7 @@ export class ItemMappingSupplierController {
             IMS_SupplierId
         })
 
-        return this.ItemMappingSupplierRepository.save(item_mapping_supplier)
+        return await this.ItemMappingSupplierRepository.save(item_mapping_supplier)
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {

@@ -7,6 +7,8 @@ import { User_TestDB } from "./entity/User"
 import { authentification } from "./middleware/authentification"
 import * as nodemailer from "nodemailer"
 import * as dotenv from "dotenv"
+import * as fileUpload from "express-fileupload"
+import * as multer from "multer"
 
 AppDataSource.initialize().then(async () => {
 
@@ -14,7 +16,16 @@ AppDataSource.initialize().then(async () => {
     const app = express()
     app.use(bodyParser.json())
     app.use(express.json());
+    /*app.use(fileUpload({
+        // Configure file uploads with maximum file size 10MB
+        limits: { fileSize: 10 * 1024 * 1024 },
+      
+        // Temporarily store uploaded files to disk, rather than buffering in memory
+        useTempFiles : true,
+        tempFileDir : '/tmp/'
+      }));*/
     dotenv.config()
+    const upload = multer({ storage: multer.memoryStorage() });
 
     // app.post('/deliver', async (req: Request, res: Response) => {
         
@@ -23,7 +34,7 @@ AppDataSource.initialize().then(async () => {
     // register express routes from defined application routes
     Routes.forEach(route => {
         if (route.route == "/login") {
-            (app as any)[route.method](route.route/*, authentification*/,(req: Request, res: Response, next: Function) => {
+            (app as any)[route.method](route.route/*, authentification*/,upload.single('file'),(req: Request, res: Response, next: Function) => {
                 // const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
                 // if (!token) {
                 //     res.status(401).json({ message: "Missing Token" });
@@ -42,7 +53,7 @@ AppDataSource.initialize().then(async () => {
             })
         }
         else {
-            (app as any)[route.method](route.route, authentification,(req: Request, res: Response, next: Function) => {
+            (app as any)[route.method](route.route, authentification,upload.single('file'),(req: Request, res: Response, next: Function) => {
                 // const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
                 // if (!token) {
                 //     res.status(401).json({ message: "Missing Token" });
