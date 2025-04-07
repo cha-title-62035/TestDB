@@ -299,6 +299,11 @@ export const Routes = [/*{
     route: "/send_email_po_request",
     controller: PO_RequestController,
     action: "sendEmail"
+},{
+    method: "post",
+    route: "/import_po_request",
+    controller: PO_RequestController,
+    action: "import"
 },
 
     // PO_Item

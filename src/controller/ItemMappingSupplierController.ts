@@ -6,9 +6,10 @@ import { Supplier_TestDB } from "../entity/Supplier"
 import * as Excel from "exceljs"
 import * as path from "path"
 import { Category_TestDB } from "../entity/Category"
-import * as XLSX from "xlsx"
-import * as exceltojson from "convert-excel-to-json"
+// import * as XLSX from "xlsx"
+// import * as exceltojson from "convert-excel-to-json"
 import { Brackets, Equal, ILike } from "typeorm"
+import excelToJson = require("convert-excel-to-json")
 
 export class ItemMappingSupplierController {
 
@@ -36,7 +37,7 @@ export class ItemMappingSupplierController {
             // const data = XLSX.utils.sheet_to_json(workbook.Sheets[worksheet[0]])
             // headerRowNumber is the number of the row with the titles counting from 1
 
-            const data = exceltojson({
+            const data = excelToJson({
                 source: request.file.buffer,
                 header: {
                     rows: 1
@@ -153,8 +154,14 @@ export class ItemMappingSupplierController {
             if (urlParams.getAll.length == 0){
                 return "Invalid URL"
             }
-            const S_Code = urlParams.get("s_code");
-            const I_Code = urlParams.get("i_code");
+            let S_Code = urlParams.get("s_code");
+            if (!parseInt(urlParams.get("s_code"))){
+                S_Code = ""
+            }
+            let I_Code = urlParams.get("i_code");
+            if (!parseInt(urlParams.get("i_code"))){
+                I_Code = ""
+            }
 
             const db = await AppDataSource.createQueryBuilder()
             .select("Item")
@@ -169,13 +176,13 @@ export class ItemMappingSupplierController {
             .where(
                 new Brackets((qb) => {
                     qb.where("Supplier.Code = :S_Code", { S_Code })
-                    .orWhere("S_Code = ''", { S_Code })
+                    .orWhere(":S_Code = ''", { S_Code })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("Item.Code = :I_Code", { I_Code })
-                    .orWhere("I_Code = ''", { I_Code })
+                    .orWhere(":I_Code = ''", { I_Code })
                 })
             )
             .orderBy("Supplier.Code", "ASC")
@@ -287,15 +294,35 @@ export class ItemMappingSupplierController {
         if (urlParams.getAll.length == 0){
             return "Invalid URL"
         }
-        const IMS_ItemId = parseInt(urlParams.get("i_id"));
-        const IMS_SupplierId = parseInt(urlParams.get("s_id"));
-
-        const ItemMappingSuppliers = await this.ItemMappingSupplierRepository.findOne({
-            where: { 
-                IMS_ItemId,
-                IMS_SupplierId 
+        let IMS_ItemId = parseInt(urlParams.get("i_id"));
+        if (!parseInt(urlParams.get("i_id"))){
+            IMS_ItemId = 0
+        }
+        console.log(IMS_ItemId);
+        let IMS_SupplierId = parseInt(urlParams.get("s_id"))
+        if (!parseInt(urlParams.get("s_id"))){
+            IMS_SupplierId = 0
+        }
+        /*const ItemMappingSuppliers = await this.ItemMappingSupplierRepository.findOne({
+            where: [
+                { IMS_ItemId: IMS_ItemId, :id: IMS_SupplierId,
+                IMS_SupplierId
              } //ILike("%" + IMS_ItemId + "%") }]
-        })
+        })*/
+       const ItemMappingSuppliers = await this.ItemMappingSupplierRepository.createQueryBuilder("ItemMappingSupplier")
+       .where(
+            new Brackets((qb) => {
+                qb.where("ItemMappingSupplier.IMS_ItemId = :IMS_ItemId", { IMS_ItemId })
+                .orWhere(":IMS_ItemId = 0", { IMS_ItemId })
+            })
+        )
+        .andWhere(
+            new Brackets((qb) => {
+                qb.where("ItemMappingSupplier.IMS_SupplierId = :IMS_SupplierId", { IMS_SupplierId })
+                .orWhere(":IMS_SupplierId = 0", { IMS_SupplierId })
+            })
+        )
+        .getMany()
 
         if (!ItemMappingSuppliers) {
             return "unregistered Item Mapping Supplier"

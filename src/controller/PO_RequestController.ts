@@ -6,8 +6,10 @@ import * as path from "path"
 import { createEmail } from "../email/template"
 import * as nodemailer from "nodemailer"
 import * as dotenv from "dotenv"
-import * as exceltojson from "convert-excel-to-json"
+// import * as exceltojson from "convert-excel-to-json"
 import { Brackets, IsNull } from "typeorm"
+import excelToJson = require("convert-excel-to-json")
+import * as moment from "moment-timezone"
 
 export class PO_RequestController {
 
@@ -36,7 +38,7 @@ export class PO_RequestController {
             // const data = XLSX.utils.sheet_to_json(workbook.Sheets[worksheet[0]])
             // headerRowNumber is the number of the row with the titles counting from 1
 
-            const data = exceltojson({
+            const data = excelToJson({
                 source: request.file.buffer,
                 header: {
                     rows: 1
@@ -46,13 +48,13 @@ export class PO_RequestController {
                 }
             });
 
-            if (!data.ItemSupplier) {
+            if (!data.PO_Request) {
                 throw new Error("Worksheet not found").message;
             }
             
-            console.log(data.ItemSupplier)
+            console.log(data.PO_Request)
             const db: any = []
-            data.ItemSupplier.forEach(json_data_set => {
+            data.PO_Request.forEach(json_data_set => {
                 // console.log(json_data_set)
                 // console.log(json_data_set.IMS_ItemId)
                 // db.push(json_data_set.IMS_ItemId)
@@ -87,6 +89,10 @@ export class PO_RequestController {
                     PR_ApproverId,
                     RejectComment
                 })
+                console.log(moment.tz.zonesForCountry("TH"))
+                po_request.DueDate = moment.tz(po_request.DueDate, "Asia/Bangkok").format()
+                po_request.PR_CreateOn = moment.tz(po_request.PR_CreateOn, "Asia/Bangkok").format()
+                po_request.PR_UpdateOn = moment.tz(po_request.PR_UpdateOn, "Asia/Bangkok").format()
 
                 // let dt = await this.ItemMappingSupplierRepository.save(item_mapping_supplier);
                 AppDataSource.manager.transaction(async transactionalEntityManager => {
@@ -194,15 +200,42 @@ export class PO_RequestController {
             if (urlParams.getAll.length == 0){
                 return "Invalid URL"
             }
-            const PR_Id = parseInt(urlParams.get("id"));
-            const PONumber = urlParams.get("po_number");
-            const Supplier_Code = urlParams.get("supplier_code");
-            const Supplier_Name = urlParams.get("supplier_name");
-            const DueDate_Start = urlParams.get("duedate_start");
-            const DueDate_End = urlParams.get("duedate_end");
-            const Status_Label = urlParams.get("status_label");
-            const Approver_EmployeeCode = urlParams.get("approver");
-            const RejectComment = urlParams.get("reject_comment");
+            let PR_Id = parseInt(urlParams.get("id"));
+            if (!parseInt(urlParams.get("id"))){
+                PR_Id = 0
+            }
+            let PONumber = urlParams.get("po_number");
+            if (!parseInt(urlParams.get("po_number"))){
+                PONumber = ""
+            }
+            let Supplier_Code = urlParams.get("supplier_code");
+            if (!parseInt(urlParams.get("supplier_code"))){
+                Supplier_Code = ""
+            }
+            let Supplier_Name = urlParams.get("supplier_name");
+            if (!parseInt(urlParams.get("supplier_name"))){
+                Supplier_Name = ""
+            }
+            let DueDate_Start = urlParams.get("duedate_start");
+            if (!parseInt(urlParams.get("duedate_start"))){
+                DueDate_Start = ""
+            }
+            let DueDate_End = urlParams.get("duedate_end");
+            if (!parseInt(urlParams.get("duedate_end"))){
+                DueDate_End = ""
+            }
+            let Status_Label = urlParams.get("status_label");
+            if (!parseInt(urlParams.get("status_label"))){
+                Status_Label = ""
+            }
+            let Approver_EmployeeCode = urlParams.get("approver");
+            if (!parseInt(urlParams.get("approver"))){
+                Approver_EmployeeCode = ""
+            }
+            let RejectComment = urlParams.get("reject_comment");
+            if (!parseInt(urlParams.get("reject_comment"))){
+                RejectComment = ""
+            }
 
             const db = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
             .select("PO_Request.PR_Id")
@@ -228,55 +261,55 @@ export class PO_RequestController {
             .where(
                 new Brackets((qb) => {
                     qb.where("PO_Request.PR_Id = :PR_Id", { PR_Id })
-                    .orWhere("PR_Id = 0", { PR_Id })
+                    .orWhere(":PR_Id = 0", { PR_Id })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.PONumber = :PONumber", { PONumber })
-                    .orWhere("PONumber = ''", { PONumber })
+                    .orWhere(":PONumber = ''", { PONumber })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("Supplier.Code = :Supplier_Code", { Supplier_Code })
-                    .orWhere("Supplier_Code = ''", { Supplier_Code })
+                    .orWhere(":Supplier_Code = ''", { Supplier_Code })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("Supplier.Name = :Supplier_Name", { Supplier_Name })
-                    .orWhere("Supplier_Name = ''", { Supplier_Name })
+                    .orWhere(":Supplier_Name = ''", { Supplier_Name })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
-                    .orWhere("DueDate_Start = ''", { DueDate_Start })
+                    .orWhere(":DueDate_Start = ''", { DueDate_Start })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
-                    .orWhere("DueDate_End = ''", { DueDate_End })
+                    .orWhere(":DueDate_End = ''", { DueDate_End })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("Status.Label = :Status_Label", { Status_Label })
-                    .orWhere("Status_Label = ''", { Status_Label })
+                    .orWhere(":Status_Label = ''", { Status_Label })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("Approver.EmployeeCode = :Approver_EmployeeCode", { Approver_EmployeeCode })
-                    .orWhere("Approver_EmployeeCode = ''", { Approver_EmployeeCode })
+                    .orWhere(":Approver_EmployeeCode = ''", { Approver_EmployeeCode })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.RejectComment = :RejectComment", { RejectComment })
-                    .orWhere("RejectComment = ''", { RejectComment })
+                    .orWhere(":RejectComment = ''", { RejectComment })
                 })
             )
             .leftJoin("PO_Request.Supplier", "Supplier")
@@ -415,15 +448,42 @@ export class PO_RequestController {
         if (urlParams.getAll.length == 0){
             return "Invalid URL"
         }
-        const PR_Id = parseInt(urlParams.get("id"));
-        const PONumber = urlParams.get("po_number");
-        const Supplier_Code = urlParams.get("supplier_code");
-        const Supplier_Name = urlParams.get("supplier_name");
-        const DueDate_Start = urlParams.get("duedate_start");
-        const DueDate_End = urlParams.get("duedate_end");
-        const Status_Label = urlParams.get("status_label");
-        const Approver_EmployeeCode = urlParams.get("approver");
-        const RejectComment = urlParams.get("reject_comment");
+        let PR_Id = parseInt(urlParams.get("id"));
+        if (!parseInt(urlParams.get("id"))){
+            PR_Id = 0
+        }
+        let PONumber = urlParams.get("po_number");
+        if (!parseInt(urlParams.get("po_number"))){
+            PONumber = ""
+        }
+        let Supplier_Code = urlParams.get("supplier_code");
+        if (!parseInt(urlParams.get("supplier_code"))){
+            Supplier_Code = ""
+        }
+        let Supplier_Name = urlParams.get("supplier_name");
+        if (!parseInt(urlParams.get("supplier_name"))){
+            Supplier_Name = ""
+        }
+        let DueDate_Start = urlParams.get("duedate_start");
+        if (!parseInt(urlParams.get("duedate_start"))){
+            DueDate_Start = ""
+        }
+        let DueDate_End = urlParams.get("duedate_end");
+        if (!parseInt(urlParams.get("duedate_end"))){
+            DueDate_End = ""
+        }
+        let Status_Label = urlParams.get("status_label");
+        if (!parseInt(urlParams.get("status_label"))){
+            Status_Label = ""
+        }
+        let Approver_EmployeeCode = urlParams.get("approver");
+        if (!parseInt(urlParams.get("approver"))){
+            Approver_EmployeeCode = ""
+        }
+        let RejectComment = urlParams.get("reject_comment");
+        if (!parseInt(urlParams.get("reject_comment"))){
+            RejectComment = ""
+        }
 
         const PO_Request = await this.PO_RequestRepository.createQueryBuilder("PO_Request")
         .select("PO_Request.PR_Id")
@@ -449,55 +509,55 @@ export class PO_RequestController {
         .where(
             new Brackets((qb) => {
                 qb.where("PO_Request.PR_Id = :PR_Id", { PR_Id })
-                .orWhere("PR_Id = 0", { PR_Id })
+                .orWhere(":PR_Id = 0", { PR_Id })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.PONumber = :PONumber", { PONumber })
-                .orWhere("PONumber = ''", { PONumber })
+                .orWhere(":PONumber = ''", { PONumber })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("Supplier.Code = :Supplier_Code", { Supplier_Code })
-                .orWhere("Supplier_Code = ''", { Supplier_Code })
+                .orWhere(":Supplier_Code = ''", { Supplier_Code })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("Supplier.Name = :Supplier_Name", { Supplier_Name })
-                .orWhere("Supplier_Name = ''", { Supplier_Name })
+                .orWhere(":Supplier_Name = ''", { Supplier_Name })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
-                .orWhere("DueDate_Start = ''", { DueDate_Start })
+                .orWhere(":DueDate_Start = ''", { DueDate_Start })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
-                .orWhere("DueDate_End = ''", { DueDate_End })
+                .orWhere(":DueDate_End = ''", { DueDate_End })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("Status.Label = :Status_Label", { Status_Label })
-                .orWhere("Status_Label = ''", { Status_Label })
+                .orWhere(":Status_Label = ''", { Status_Label })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("Approver.EmployeeCode = :Approver_EmployeeCode", { Approver_EmployeeCode })
-                .orWhere("Approver_EmployeeCode = ''", { Approver_EmployeeCode })
+                .orWhere(":Approver_EmployeeCode = ''", { Approver_EmployeeCode })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.RejectComment = :RejectComment", { RejectComment })
-                .orWhere("RejectComment = ''", { RejectComment })
+                .orWhere(":RejectComment = ''", { RejectComment })
             })
         )
         .leftJoin("PO_Request.Supplier", "Supplier")
