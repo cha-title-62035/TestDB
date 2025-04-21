@@ -155,11 +155,11 @@ export class ItemMappingSupplierController {
                 return "Invalid URL"
             }
             let S_Code = urlParams.get("s_code");
-            if (!parseInt(urlParams.get("s_code"))){
+            if (!urlParams.get("s_code")){
                 S_Code = ""
             }
             let I_Code = urlParams.get("i_code");
-            if (!parseInt(urlParams.get("i_code"))){
+            if (!urlParams.get("i_code")){
                 I_Code = ""
             }
 

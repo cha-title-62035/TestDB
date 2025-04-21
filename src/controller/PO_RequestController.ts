@@ -205,35 +205,35 @@ export class PO_RequestController {
                 PR_Id = 0
             }
             let PONumber = urlParams.get("po_number");
-            if (!parseInt(urlParams.get("po_number"))){
+            if (!urlParams.get("po_number")){
                 PONumber = ""
             }
             let Supplier_Code = urlParams.get("supplier_code");
-            if (!parseInt(urlParams.get("supplier_code"))){
+            if (!urlParams.get("supplier_code")){
                 Supplier_Code = ""
             }
             let Supplier_Name = urlParams.get("supplier_name");
-            if (!parseInt(urlParams.get("supplier_name"))){
+            if (!urlParams.get("supplier_name")){
                 Supplier_Name = ""
             }
             let DueDate_Start = urlParams.get("duedate_start");
-            if (!parseInt(urlParams.get("duedate_start"))){
-                DueDate_Start = ""
+            if (!urlParams.get("duedate_start")){
+                DueDate_Start = null
             }
             let DueDate_End = urlParams.get("duedate_end");
-            if (!parseInt(urlParams.get("duedate_end"))){
-                DueDate_End = ""
+            if (!urlParams.get("duedate_end")){
+                DueDate_End = null
             }
             let Status_Label = urlParams.get("status_label");
-            if (!parseInt(urlParams.get("status_label"))){
+            if (!urlParams.get("status_label")){
                 Status_Label = ""
             }
             let Approver_EmployeeCode = urlParams.get("approver");
-            if (!parseInt(urlParams.get("approver"))){
+            if (!urlParams.get("approver")){
                 Approver_EmployeeCode = ""
             }
             let RejectComment = urlParams.get("reject_comment");
-            if (!parseInt(urlParams.get("reject_comment"))){
+            if (!urlParams.get("reject_comment")){
                 RejectComment = ""
             }
 
@@ -285,13 +285,13 @@ export class PO_RequestController {
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
-                    .orWhere(":DueDate_Start = ''", { DueDate_Start })
+                    .orWhere(":DueDate_Start is null", { DueDate_Start })
                 })
             )
             .andWhere(
                 new Brackets((qb) => {
                     qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
-                    .orWhere(":DueDate_End = ''", { DueDate_End })
+                    .orWhere(":DueDate_End is null", { DueDate_End })
                 })
             )
             .andWhere(
@@ -453,35 +453,35 @@ export class PO_RequestController {
             PR_Id = 0
         }
         let PONumber = urlParams.get("po_number");
-        if (!parseInt(urlParams.get("po_number"))){
+        if (!urlParams.get("po_number")){
             PONumber = ""
         }
         let Supplier_Code = urlParams.get("supplier_code");
-        if (!parseInt(urlParams.get("supplier_code"))){
+        if (!urlParams.get("supplier_code")){
             Supplier_Code = ""
         }
         let Supplier_Name = urlParams.get("supplier_name");
-        if (!parseInt(urlParams.get("supplier_name"))){
+        if (!urlParams.get("supplier_name")){
             Supplier_Name = ""
         }
         let DueDate_Start = urlParams.get("duedate_start");
-        if (!parseInt(urlParams.get("duedate_start"))){
-            DueDate_Start = ""
+        if (!urlParams.get("duedate_start")){
+            DueDate_Start = null
         }
         let DueDate_End = urlParams.get("duedate_end");
-        if (!parseInt(urlParams.get("duedate_end"))){
-            DueDate_End = ""
+        if (!urlParams.get("duedate_end")){
+            DueDate_End = null
         }
         let Status_Label = urlParams.get("status_label");
-        if (!parseInt(urlParams.get("status_label"))){
+        if (!urlParams.get("status_label")){
             Status_Label = ""
         }
         let Approver_EmployeeCode = urlParams.get("approver");
-        if (!parseInt(urlParams.get("approver"))){
+        if (!urlParams.get("approver")){
             Approver_EmployeeCode = ""
         }
         let RejectComment = urlParams.get("reject_comment");
-        if (!parseInt(urlParams.get("reject_comment"))){
+        if (!urlParams.get("reject_comment")){
             RejectComment = ""
         }
 
@@ -533,13 +533,13 @@ export class PO_RequestController {
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.DueDate >= :DueDate_Start", { DueDate_Start })
-                .orWhere(":DueDate_Start = ''", { DueDate_Start })
+                .orWhere(":DueDate_Start is null", { DueDate_Start })
             })
         )
         .andWhere(
             new Brackets((qb) => {
                 qb.where("PO_Request.DueDate <= :DueDate_End", { DueDate_End })
-                .orWhere(":DueDate_End = ''", { DueDate_End })
+                .orWhere(":DueDate_End is null", { DueDate_End })
             })
         )
         .andWhere(
